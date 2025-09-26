@@ -182,6 +182,10 @@ def cpp_library(
         linker_flags = list(linker_flags)
         if exported_linker_flags != None:
             linker_flags += exported_linker_flags
+    native_kwargs = {k: v for k, v in kwargs.items() if k not in [
+        "apple_sdks",
+        "fbobjc_complete_nullability",
+    ]}
     prelude.cxx_library(
         name = name,
         srcs = srcs,
@@ -194,7 +198,7 @@ def cpp_library(
         exported_linker_flags = linker_flags,
         linker_flags = private_linker_flags,
         header_namespace = header_base_path,
-        **kwargs
+        **native_kwargs
     )
 
 def cpp_unittest(
