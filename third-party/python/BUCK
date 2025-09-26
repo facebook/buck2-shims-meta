@@ -18,3 +18,23 @@ pkgconfig_system_library(
     },
     pkgconfig_name = "python3",
 )
+
+pkgconfig_system_library(
+    name = "python-for-embedding",
+    packages = {
+        "//os:linux-fedora": ["python3-devel"],
+        "//os:linux-ubuntu": ["python3-dev"],
+        "//os:macos-homebrew": ["python3"],
+    },
+    pkgconfig_name = "python3",
+)
+
+pkgconfig_system_library(
+    name = "python-headers",
+    packages = {
+        "//os:linux-fedora": ["python3-devel"],
+        "//os:linux-ubuntu": ["python3-dev"],
+        "//os:macos-homebrew": ["python3"],
+    },
+    pkgconfig_name = "python3",
+)
