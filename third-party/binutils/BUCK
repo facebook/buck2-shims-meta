@@ -17,3 +17,12 @@ system_library(
         "//os:linux-ubuntu": ["libiberty-dev"],
     },
 )
+
+system_library(
+    name = "iberty-demangle",
+    exported_linker_flags = ["-liberty-demangle"],
+    packages = {
+        "//os:linux-fedora": ["binutils-devel"],
+        "//os:linux-ubuntu": ["libiberty-dev"],
+    },
+)
