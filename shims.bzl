@@ -288,6 +288,23 @@ def rust_library(
     # Reset visibility because internal and external paths are different.
     visibility = ["PUBLIC"]
 
+    # Generate cxx bridge header if specified
+    if cxx_bridge:
+        header_name = cxx_bridge + ".h"
+        prelude.genrule(
+            name = name + "@header-gen",
+            srcs = [cxx_bridge],
+            out = header_name,
+            cmd = "cxxbridge $SRCS --header > $OUT",
+        )
+
+        prelude.cxx_library(
+            name = name + "@header",
+            headers = {header_name: ":" + name + "@header-gen"},
+            exported_headers = {header_name: ":" + name + "@header-gen"},
+            visibility = visibility,
+        )
+
     prelude.rust_library(
         name = name,
         edition = edition or _default_rust_edition(),
