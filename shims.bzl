@@ -159,6 +159,21 @@ def cpp_library(
     _unused = (undefined_symbols, arch_preprocessor_flags, modular_headers, arch_compiler_flags, labels, propagated_pp_flags, feature, preferred_linkage)  # @unused
     if headers == None:
         headers = []
+
+    # Handle target references in headers list (e.g., ":iobuf__iobuf_api.h")
+    # Extract them and add to exported_deps so their outputs are available as headers
+    # Only extract local target refs (starting with ":") to avoid breaking path remappings
+    if is_list(headers):
+        header_targets = []
+        actual_headers = []
+        for h in headers:
+            if type(h) == type("") and h.startswith(":"):
+                header_targets.append(h)
+            else:
+                actual_headers.append(h)
+        headers = actual_headers
+        exported_deps = exported_deps + header_targets
+
     if labels != None and "oss_dependency" in labels:
         if oss_depends_on_folly:
             headers = [item.replace("//:", "//folly:") if item == "//:folly-config.h" else item for item in headers]
