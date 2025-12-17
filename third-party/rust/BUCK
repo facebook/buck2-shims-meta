@@ -3892,10 +3892,20 @@ alias(
     visibility = ["PUBLIC"],
 )
 
+alias(
+    name = "cxx-core",
+    actual = ":cxx-1.0.192-core",
+    visibility = ["PUBLIC"],
+)
+
 http_archive(
     name = "cxx-1.0.192.crate",
     sha256 = "bbda285ba6e5866529faf76352bdf73801d9b44a6308d7cd58ca2379f378e994",
     strip_prefix = "cxx-1.0.192",
+    sub_targets = [
+        "include/cxx.h",
+        "src/cxx.cc",
+    ],
     urls = ["https://static.crates.io/crates/cxx/1.0.192/download"],
     visibility = [],
 )
@@ -3917,6 +3927,17 @@ cargo.rust_library(
         ":foldhash-0.2.0",
         ":link-cplusplus-1.0.12",
     ],
+)
+
+cxx_library(
+    name = "cxx-1.0.192-core",
+    srcs = [":cxx-1.0.192.crate[src/cxx.cc]"],
+    exported_headers = {
+        "cxx.h": ":cxx-1.0.192.crate[include/cxx.h]",
+    },
+    header_namespace = "rust",
+    preferred_linkage = "static",
+    visibility = [],
 )
 
 http_archive(
