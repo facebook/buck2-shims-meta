@@ -30,3 +30,11 @@ config_setting(
     ],
     visibility = ["PUBLIC"],
 )
+
+config_setting(
+    name = "windows-chocolatey",
+    constraint_values = [
+        "prelude//os/constraints:windows",
+    ],
+    visibility = ["PUBLIC"],
+)
