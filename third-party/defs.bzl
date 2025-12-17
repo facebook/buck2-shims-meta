@@ -130,7 +130,7 @@ def homebrew_library(
     native.genrule(
         name = preproc_flags_rule_name,
         type = "homebrew_library_preproc_flags",
-        out = "out",
+        out = "preproc_flags.txt",
         cmd = "echo \"-I`brew --prefix {}`/{}\" > $OUT".format(brew, homebrew_header_path),
         target_compatible_with = target_compatible_with,
     )
@@ -139,7 +139,7 @@ def homebrew_library(
     native.genrule(
         name = linker_flags_rule_name,
         type = "homebrew_library_linker_flags",
-        out = "out",
+        out = "linker_flags.txt",
         cmd = "echo \"-L`brew --prefix {}`/lib\" > $OUT".format(brew),
         target_compatible_with = target_compatible_with,
     )
@@ -147,10 +147,10 @@ def homebrew_library(
     native.prebuilt_cxx_library(
         name = name,
         exported_preprocessor_flags = exported_preprocessor_flags + [
-            "@$(location :{})/preproc_flags.txt".format(preproc_flags_rule_name),
+            "@$(location :{})".format(preproc_flags_rule_name),
         ],
         exported_linker_flags = exported_linker_flags + [
-            "@$(location :{})/linker_flags.txt".format(linker_flags_rule_name),
+            "@$(location :{})".format(linker_flags_rule_name),
         ],
         target_compatible_with = target_compatible_with,
         **kwargs
