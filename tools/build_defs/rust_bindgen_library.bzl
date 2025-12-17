@@ -17,7 +17,7 @@ def _rust_bindgen_impl(ctx: AnalysisContext) -> list[Provider]:
             cpp_args.add(info.set.project_as_args("args"))
 
     # Build the bindgen command
-    out = ctx.actions.declare_output("bindings.rs")
+    out = ctx.actions.declare_output(ctx.attrs.cxx_bridge)
     cmd = cmd_args(ctx.attrs._bindgen[RunInfo])
     cmd.add("--header", ctx.attrs.header)
     cmd.add("--out", out.as_output())
@@ -53,14 +53,15 @@ def _rust_bindgen_impl(ctx: AnalysisContext) -> list[Provider]:
 _rust_bindgen = rule(
     impl = _rust_bindgen_impl,
     attrs = {
-        "header": attrs.source(),
-        "cpp_deps": attrs.list(attrs.dep(), default = []),
         "allowlist_funcs": attrs.list(attrs.string(), default = []),
         "allowlist_types": attrs.list(attrs.string(), default = []),
         "allowlist_vars": attrs.list(attrs.string(), default = []),
-        "opaque_types": attrs.list(attrs.string(), default = []),
+        "cpp_deps": attrs.list(attrs.dep(), default = []),
+        "cxx_bridge": attrs.string(default = "bindings.rs"),
         "enable_cxx_namespaces": attrs.bool(default = False),
         "generate": attrs.list(attrs.string(), default = []),
+        "header": attrs.source(),
+        "opaque_types": attrs.list(attrs.string(), default = []),
         "_bindgen": attrs.exec_dep(default = "fbsource//third-party/rust/bindgen:bindgen"),
     },
 )
@@ -70,6 +71,7 @@ def rust_bindgen_library(name: str, header: str, **kwargs):
 
     cpp_deps = kwargs.pop("cpp_deps", [])
     src_includes = kwargs.pop("src_includes", [])
+    cxx_bridge_filename = kwargs.pop("cxx_bridge", "bindings.rs")
     cxx_namespaces = kwargs.pop("cxx_namespaces", False)
     generate = kwargs.pop("generate", [])
 
@@ -77,6 +79,7 @@ def rust_bindgen_library(name: str, header: str, **kwargs):
         name = name + "--bindings.rs",
         header = header,
         cpp_deps = cpp_deps,
+        cxx_bridge = cxx_bridge_filename,
         allowlist_funcs = kwargs.pop("allowlist_funcs", []),
         allowlist_types = kwargs.pop("allowlist_types", []),
         allowlist_vars = kwargs.pop("allowlist_vars", []),
@@ -88,7 +91,7 @@ def rust_bindgen_library(name: str, header: str, **kwargs):
 
     # Map the generated bindings and any src_includes into the crate
     mapped_srcs = {
-        ":{}--bindings.rs".format(name): "src/bindings.rs",
+        ":{}--bindings.rs".format(name): cxx_bridge_filename,
     }
     for src in src_includes:
         # Map each src_include, preserving its basename
@@ -99,7 +102,7 @@ def rust_bindgen_library(name: str, header: str, **kwargs):
         name = name,
         mapped_srcs = mapped_srcs,
         deps = cpp_deps + kwargs.pop("deps", []),
-        env = {"OUT_DIR": "src"},
+        env = {"OUT_DIR": "."},
         visibility = kwargs.pop("visibility", []),
     )
 
