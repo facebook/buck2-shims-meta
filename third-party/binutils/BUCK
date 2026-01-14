@@ -5,15 +5,24 @@
 # License, Version 2.0 found in the LICENSE-APACHE file in the root directory
 # of this source tree.
 
-load("@//third-party:defs.bzl", "system_library")
+load("@//third-party:defs.bzl", "pkgconfig_system_library")
 
 oncall("open_source")
 
-system_library(
+pkgconfig_system_library(
     name = "iberty",
-    exported_linker_flags = ["-liberty"],
     packages = {
         "//os:linux-fedora": ["binutils-devel"],
-        "//os:linux-ubuntu": ["libiberty-dev"],
+        "//os:linux-ubuntu": ["binutils-dev"],
     },
+    pkgconfig_name = "libiberty",
+)
+
+pkgconfig_system_library(
+    name = "iberty-demangle",
+    packages = {
+        "//os:linux-fedora": ["binutils-devel"],
+        "//os:linux-ubuntu": ["binutils-dev"],
+    },
+    pkgconfig_name = "libiberty",
 )

@@ -16,4 +16,8 @@ pkgconfig_system_library(
         "//os:linux-ubuntu": ["libgflags-dev"],
         "//os:macos-homebrew": ["gflags"],
     },
+    pkgconfig_name = "gflags",
+    fallback = struct(
+        preprocessor_flags = ["-DGFLAGS_NAMESPACE=gflags"],
+    ),
 )

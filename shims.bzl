@@ -162,6 +162,21 @@ def cpp_library(
         deps += _select_os_deps(_fix_dict_deps(os_deps))
     if headers == None:
         headers = []
+
+    # Handle target references in headers list (e.g., ":iobuf__iobuf_api.h")
+    # Extract them and add to exported_deps so their outputs are available as headers
+    # Only extract local target refs (starting with ":") to avoid breaking path remappings
+    if is_list(headers):
+        header_targets = []
+        actual_headers = []
+        for h in headers:
+            if type(h) == type("") and h.startswith(":"):
+                header_targets.append(h)
+            else:
+                actual_headers.append(h)
+        headers = actual_headers
+        exported_deps = exported_deps + header_targets
+
     if labels != None and "oss_dependency" in labels:
         if oss_depends_on_folly:
             headers = [item.replace("//:", "//folly:") if item == "//:folly-config.h" else item for item in headers]
@@ -185,6 +200,10 @@ def cpp_library(
         linker_flags = list(linker_flags)
         if exported_linker_flags != None:
             linker_flags += exported_linker_flags
+    native_kwargs = {k: v for k, v in kwargs.items() if k not in [
+        "apple_sdks",
+        "fbobjc_complete_nullability",
+    ]}
     prelude.cxx_library(
         name = name,
         srcs = srcs,
@@ -197,7 +216,7 @@ def cpp_library(
         exported_linker_flags = linker_flags,
         linker_flags = private_linker_flags,
         header_namespace = header_base_path,
-        **kwargs
+        **native_kwargs
     )
 
 def cpp_unittest(
@@ -285,7 +304,7 @@ def rust_library(
         cxx_bridge = None,
         visibility = ["PUBLIC"],
         **kwargs):
-    _unused = (test_deps, test_env, test_os_deps, named_deps, autocargo, unittests, visibility, cpp_deps, cxx_bridge)  # @unused
+    _unused = (test_deps, test_env, test_os_deps, named_deps, autocargo, unittests, visibility, cpp_deps)  # @unused
     deps = _fix_deps(deps)
     mapped_srcs = _maybe_select_map(mapped_srcs, _fix_mapped_srcs)
     if os_deps:
@@ -293,6 +312,23 @@ def rust_library(
 
     # Reset visibility because internal and external paths are different.
     visibility = ["PUBLIC"]
+
+    # Generate cxx bridge header if specified
+    if cxx_bridge:
+        header_name = cxx_bridge + ".h"
+        prelude.genrule(
+            name = name + "@header-gen",
+            srcs = [cxx_bridge],
+            out = header_name,
+            cmd = "cxxbridge $SRCS --header > $OUT",
+        )
+
+        prelude.cxx_library(
+            name = name + "@header",
+            headers = {header_name: ":" + name + "@header-gen"},
+            exported_headers = {header_name: ":" + name + "@header-gen"},
+            visibility = visibility,
+        )
 
     prelude.rust_library(
         name = name,

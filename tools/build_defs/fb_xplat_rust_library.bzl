@@ -6,8 +6,14 @@
 # of this source tree. You may select, at your option, one of the
 # above-listed licenses.
 
-def fb_xplat_cxx_library(**kwargs):
+def fb_xplat_rust_library(*args, **kwargs):
     native_kwargs = {k: v for k, v in kwargs.items() if k not in [
+        "cxx_bridge",
         "platforms",
+        "test_deps",
+        "xplat_preexisting_target_flavors",
     ]}
-    native.cxx_library(**native_kwargs)
+    native.rust_library(
+        *args,
+        **native_kwargs
+    )
