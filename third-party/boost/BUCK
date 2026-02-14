@@ -21,6 +21,7 @@ boost_libs(
         "variant",
     ],
     libraries = [
+        "atomic",
         "container",
         "context",
         "filesystem",

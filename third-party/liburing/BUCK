@@ -14,7 +14,9 @@ pkgconfig_system_library(
     packages = {
         "//os:linux-fedora": ["liburing-devel"],
         "//os:linux-ubuntu": ["liburing-dev"],
-        "//os:macos-homebrew": ["liburing"],
     },
     pkgconfig_name = "liburing",
+    unsupported = {
+        "//os:macos-homebrew": [],  # io_uring is Linux-only
+    },
 )
