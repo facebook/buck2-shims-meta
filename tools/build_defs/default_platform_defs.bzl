@@ -9,12 +9,15 @@
 DEVSERVER_PLATFORM_REGEX = "UNUSED"
 ANDROID = "Android"
 APPLE = "Apple"
+APPLETVOS = "AppleTVOS"
 CXX = "Default"
 FBCODE = "Fbcode"
 IOS = "ios"
 MACOSX = "macosx"
 WATCHOS = "watchos"
 WINDOWS = "Windows"
+
+ALL_APPLE_SDKS = (APPLETVOS, IOS, MACOSX, WATCHOS)
 
 def get_available_platforms():
     if native.host_info().os.is_macos:
