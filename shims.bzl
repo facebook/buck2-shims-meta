@@ -149,6 +149,7 @@ def cpp_library(
         propagated_pp_flags = (),
         feature = None,
         preferred_linkage = None,
+        enable_static_variant = None,
         **kwargs):
     base_path = native.package_name()
     oss_depends_on_folly = read_bool("oss_depends_on", "folly", False)
@@ -156,7 +157,7 @@ def cpp_library(
     if oss_depends_on_folly and header_base_path.startswith("folly"):
         header_base_path = header_base_path.replace("folly/", "", 1)
 
-    _unused = (undefined_symbols, arch_preprocessor_flags, modular_headers, arch_compiler_flags, labels, propagated_pp_flags, feature, preferred_linkage)  # @unused
+    _unused = (undefined_symbols, arch_preprocessor_flags, modular_headers, arch_compiler_flags, labels, propagated_pp_flags, feature, preferred_linkage, enable_static_variant)  # @unused
     if headers == None:
         headers = []
 
