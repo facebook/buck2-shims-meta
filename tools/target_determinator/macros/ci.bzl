@@ -27,6 +27,7 @@ ci = struct(
     windows = _lbl,
     skip_test = _lbl,
     aarch64 = _lbl,
+    x86_64 = _lbl,
     mode = _lbl,
     opt = _lbl,
     labels = _labels,

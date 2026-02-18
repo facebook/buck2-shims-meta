@@ -10,11 +10,10 @@ load("@//third-party:defs.bzl", "pkgconfig_system_library")
 oncall("open_source")
 
 pkgconfig_system_library(
-    name = "fast_float",
-    pkgconfig_name = "fast_float",
+    name = "tbb",
     packages = {
-        "//os:linux-fedora": ["fast_float-devel"],
-        "//os:linux-ubuntu": ["libfast-float-dev"],
-        "//os:macos-homebrew": ["fast_float"],
+        "//os:linux-fedora": ["tbb-devel"],
+        "//os:linux-ubuntu": ["libtbb-dev"],
+        "//os:macos-homebrew": ["tbb"],
     },
 )

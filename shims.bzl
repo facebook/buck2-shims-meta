@@ -159,6 +159,21 @@ def cpp_library(
     _unused = (undefined_symbols, arch_preprocessor_flags, modular_headers, arch_compiler_flags, labels, propagated_pp_flags, feature, preferred_linkage)  # @unused
     if headers == None:
         headers = []
+
+    # Handle target references in headers list (e.g., ":iobuf__iobuf_api.h")
+    # Extract them and add to exported_deps so their outputs are available as headers
+    # Only extract local target refs (starting with ":") to avoid breaking path remappings
+    if is_list(headers):
+        header_targets = []
+        actual_headers = []
+        for h in headers:
+            if type(h) == type("") and h.startswith(":"):
+                header_targets.append(h)
+            else:
+                actual_headers.append(h)
+        headers = actual_headers
+        exported_deps = exported_deps + header_targets
+
     if labels != None and "oss_dependency" in labels:
         if oss_depends_on_folly:
             headers = [item.replace("//:", "//folly:") if item == "//:folly-config.h" else item for item in headers]
@@ -182,6 +197,10 @@ def cpp_library(
         linker_flags = list(linker_flags)
         if exported_linker_flags != None:
             linker_flags += exported_linker_flags
+    native_kwargs = {k: v for k, v in kwargs.items() if k not in [
+        "apple_sdks",
+        "fbobjc_complete_nullability",
+    ]}
     prelude.cxx_library(
         name = name,
         srcs = srcs,
@@ -194,7 +213,7 @@ def cpp_library(
         exported_linker_flags = linker_flags,
         linker_flags = private_linker_flags,
         header_namespace = header_base_path,
-        **kwargs
+        **native_kwargs
     )
 
 def cpp_unittest(
@@ -283,6 +302,23 @@ def rust_library(
 
     # Reset visibility because internal and external paths are different.
     visibility = ["PUBLIC"]
+
+    # Generate cxx bridge header if specified
+    if cxx_bridge:
+        header_name = cxx_bridge + ".h"
+        prelude.genrule(
+            name = name + "@header-gen",
+            srcs = [cxx_bridge],
+            out = header_name,
+            cmd = "cxxbridge $SRCS --header > $OUT",
+        )
+
+        prelude.cxx_library(
+            name = name + "@header",
+            headers = {header_name: ":" + name + "@header-gen"},
+            exported_headers = {header_name: ":" + name + "@header-gen"},
+            visibility = visibility,
+        )
 
     prelude.rust_library(
         name = name,

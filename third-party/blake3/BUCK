@@ -10,11 +10,11 @@ load("@//third-party:defs.bzl", "pkgconfig_system_library")
 oncall("open_source")
 
 pkgconfig_system_library(
-    name = "fast_float",
-    pkgconfig_name = "fast_float",
+    name = "blake3",
+    pkgconfig_name = "libblake3",
     packages = {
-        "//os:linux-fedora": ["fast_float-devel"],
-        "//os:linux-ubuntu": ["libfast-float-dev"],
-        "//os:macos-homebrew": ["fast_float"],
+        "//os:linux-fedora": ["blake3-devel"],
+        "//os:linux-ubuntu": ["libblake3-dev"],
+        "//os:macos-homebrew": ["blake3"],
     },
 )
